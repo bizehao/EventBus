@@ -93,7 +93,7 @@ endif()
 
 target_compile_options(EventBus PUBLIC
 	-Wall -pedantic
-	-Wnon-virtual-dtor
-	-Werror
-	-Wno-error=deprecated-declarations
+	#-Wnon-virtual-dtor
+	#-Werror
+	#-Wno-error=deprecated-declarations
 	)

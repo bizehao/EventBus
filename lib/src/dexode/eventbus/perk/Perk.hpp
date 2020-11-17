@@ -16,7 +16,7 @@ enum class Flag : int
 class Perk
 {
 public:
-	virtual ~Perk() = default;
+    virtual ~Perk() = default;
 };
 
 } // namespace dexode::eventbus::perk

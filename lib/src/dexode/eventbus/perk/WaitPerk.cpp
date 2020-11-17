@@ -1,6 +1,3 @@
-//
-// Created by gelldur on 24.12.2019.
-//
 #include "WaitPerk.hpp"
 
 namespace dexode::eventbus::perk
@@ -18,30 +15,8 @@ bool WaitPerk::wait()
 	_eventWaiting.wait(lock, [this]() { return _hasEvents; });
 
 	// At this moment we are still under mutex
-	if(_hasEvents)
-	{
-		_hasEvents = false; // reset, assume that processing of events took place
-		return true;
-	}
-	return false;
-}
-
-bool WaitPerk::waitFor(const std::chrono::milliseconds timeout)
-{
-	using namespace std::chrono_literals;
-	std::unique_lock<std::mutex> lock(_waitMutex);
-	if(_hasEvents)
-	{
-		_hasEvents = false; // reset
-		return true;
-	}
-	if(_eventWaiting.wait_for(lock, timeout, [this]() { return _hasEvents; }))
-	{
-		// At this moment we are still under mutex
-		_hasEvents = false; // reset
-		return true;
-	}
-	return false;
+	_hasEvents = false; // reset, assume that processing of events took place
+	return true;
 }
 
 Flag WaitPerk::onPostponeEvent(PostponeHelper&)

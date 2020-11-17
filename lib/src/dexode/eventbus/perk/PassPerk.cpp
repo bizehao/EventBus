@@ -1,8 +1,4 @@
-//
-// Created by gelldur on 24.12.2019.
-//
 #include "PassPerk.hpp"
-
 #include "dexode/eventbus/Bus.hpp"
 
 namespace dexode::eventbus::perk

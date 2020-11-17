@@ -6,15 +6,6 @@
 namespace dexode::eventbus::perk
 {
 
-Flag TagPerk::onPrePostponeEvent(PostponeHelper& postponeCall)
-{
-	if(auto found = _eventsToWrap.find(postponeCall.eventID); found != _eventsToWrap.end())
-	{
-		found->second(postponeCall.event);
-		return Flag::postpone_cancel;
-	}
 
-	return Flag::postpone_continue;
-}
 
-}
+} // namespace dexode::eventbus::perk
