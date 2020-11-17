@@ -8,13 +8,15 @@
 #include <memory>
 
 #include "dexode/eventbus/Listener.hpp"
-#include "dexode/eventbus/internal/ListenerAttorney.hpp"
 #include "dexode/eventbus/internal/event_id.hpp"
 #include "dexode/eventbus/stream/ProtectedEventStream.hpp"
 
 namespace dexode::eventbus
 {
-
+namespace internal {
+template<typename EventBus_t>
+class ListenerAttorney;
+}
 class Bus;
 
 template <typename Event>
@@ -100,8 +102,9 @@ private:
 		return ++_lastID; // used for generate unique listeners ID's
 	}
 
+public:
 	template <class Event>
-	void listen(const std::uint32_t listenerID, std::function<void(const Event&)>&& callback)
+    void listen(const std::uint32_t listenerID, std::function<void(const Event&)>&& callback)
 	{
 		static_assert(internal::validateEvent<Event>(), "Invalid event");
 		assert(callback && "callback should be valid"); // Check for valid object

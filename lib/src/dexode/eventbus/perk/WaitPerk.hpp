@@ -9,34 +9,72 @@
 
 #include "Perk.hpp"
 
-namespace dexode::eventbus
-{
+namespace dexode::eventbus {
 class PostponeHelper;
 }
 
-namespace dexode::eventbus::perk
-{
+namespace dexode::eventbus::perk {
 
-class WaitPerk : public Perk
-{
+class WaitPerk : public Perk {
 public:
-	/**
+    /**
 	 * @return true when events are waiting in bus
-	 */
-	bool wait();
+     */
+    bool wait();
 
-	/**
+    /**
 	 * @param timeout
-	 * @return true when events are waiting in bus
-	 */
-	bool waitFor(std::chrono::milliseconds timeout);
+     * @return true when events are waiting in bu
+     */
+    template<typename Rep, typename Period>
+    bool waitFor(std::chrono::duration<Rep, Period> timeout) {
+        using namespace std::chrono_literals;
+        std::unique_lock<std::mutex> lock(_waitMutex);
+        if (_hasEvents) {
+            _hasEvents = false; // reset
+            return true;
+        }
+        if (_eventWaiting.wait_for(lock, timeout, [this]() { return _hasEvents; })) {
+            // At this moment we are still under mutex
+            _hasEvents = false; // reset
+            return true;
+        }
+        return false;
+    }
 
-	Flag onPostponeEvent(PostponeHelper& postponeCall);
+    Flag onPostponeEvent(PostponeHelper& postponeCall);
 
 private:
-	std::condition_variable _eventWaiting;
-	std::mutex _waitMutex;
-	bool _hasEvents = false;
+    std::condition_variable _eventWaiting;
+    std::mutex _waitMutex;
+    bool _hasEvents = false;
 };
+
+} // namespace dexode::eventbus::perk
+
+namespace dexode::eventbus::perk {
+
+inline bool WaitPerk::wait() {
+    using namespace std::chrono_literals;
+    std::unique_lock<std::mutex> lock(_waitMutex);
+    if (_hasEvents) {
+        _hasEvents = false; // reset, assume that processing of events took place
+        return true;
+    }
+    _eventWaiting.wait(lock, [this]() { return _hasEvents; });
+
+    // At this moment we are still under mutex
+    _hasEvents = false; // reset, assume that processing of events took place
+    return true;
+}
+
+inline Flag WaitPerk::onPostponeEvent(PostponeHelper&) {
+    {
+        std::lock_guard<std::mutex> lock(_waitMutex);
+        _hasEvents = true;
+    }
+    _eventWaiting.notify_one();
+    return Flag::postpone_continue;
+}
 
 } // namespace dexode::eventbus::perk

@@ -2,6 +2,7 @@
 
 #include <any>
 #include <cstdint>
+#include <stdexcept>
 
 namespace dexode::eventbus::stream
 {

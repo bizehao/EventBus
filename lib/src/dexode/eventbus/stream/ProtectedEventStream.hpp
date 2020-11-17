@@ -41,6 +41,8 @@ public:
 				std::move(_queue.begin(),
 						  std::next(_queue.begin(), countElements),
 						  std::back_inserter(processEvents));
+
+                _queue.erase(_queue.begin(),std::next(_queue.begin(), countElements));
 			}
 		}
 

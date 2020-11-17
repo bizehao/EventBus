@@ -30,3 +30,14 @@ private:
 };
 
 } // namespace dexode::eventbus::perk
+
+namespace dexode::eventbus::perk
+{
+
+inline Flag PassEverythingPerk::onPrePostponeEvent(PostponeHelper& postponeCall)
+{
+	postponeCall.postponeCallback(*_passToBus, std::move(postponeCall.event));
+	return Flag::postpone_cancel;
+}
+
+} // namespace dexode::eventbus::perk
